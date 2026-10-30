@@ -2,7 +2,7 @@
 
 # Lights Out
 
-**43 Formula 1 races, replayed in your browser in 2D and 3D, with real engine sound, team radio and the race story found for you.**
+**Formula 1 races, replayed in your browser in 2D and 3D, with real engine sound, team radio and the race story found for you.**
 
 [**Open the live replay**](https://dhairya-007.github.io/lights-out/)
 

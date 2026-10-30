@@ -1145,8 +1145,6 @@ function buildPicker() {
     section.append(heading, grid);
     return section;
   }));
-  $("hero-line").textContent =
-    `${state.races.length} Formula 1 races, replayed in your browser with the race story found for you. Pick a circuit.`;
 }
 
 function route() {
