@@ -1,0 +1,12 @@
+{
+  "name": "lights-out-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:3d": "esbuild web/view3d.js --bundle --minify --format=esm --target=es2020 --legal-comments=inline --outfile=web/view3d.min.js"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "three": "0.186.1"
+  }
+}
