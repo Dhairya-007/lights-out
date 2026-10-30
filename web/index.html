@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lights Out</title>
+  <meta name="description" content="Formula 1 races replayed in your browser, with passes, undercuts and key moments found automatically.">
+  <meta name="theme-color" content="#2c2e31">
+  <meta property="og:title" content="Lights Out">
+  <meta property="og:description" content="Formula 1 races replayed in your browser, with the race story found for you.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://dhairya-007.github.io/lights-out/">
+  <meta property="og:image" content="https://dhairya-007.github.io/lights-out/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%23212326'/%3E%3Ccircle cx='20' cy='20' r='12' fill='%23ff2a1f'/%3E%3C/svg%3E">
+  <link rel="preload" href="fonts/saira-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="picker" class="picker" hidden>
+    <header class="hero">
+      <div>
+        <h1>Lights Out</h1>
+        <p id="hero-line" class="hero-line">Formula 1 races, replayed in your browser with the race story found for you.</p>
+      </div>
+      <div class="gantry-hero" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    </header>
+    <div class="kerb-band" aria-hidden="true"></div>
+    <div id="seasons"></div>
+    <footer class="foot">
+      <p>Data from <a href="https://openf1.org">OpenF1</a>. Unofficial fan project, not associated with Formula 1.
+        Engine and crowd recordings by Edvvc and WebbFilmsUK, used under Creative Commons, see
+        <a href="audio/CREDITS.md">audio credits</a>.
+        <a href="https://github.com/Dhairya-007/lights-out">Source on GitHub</a>.</p>
+    </footer>
+  </main>
+
+  <main id="replay" class="replay" hidden>
+    <header class="head">
+      <button id="to-races" type="button">All races</button>
+      <h1 id="race-title"></h1>
+      <p id="leader-note" class="leader-note"></p>
+    </header>
+
+    <p id="lower-third" class="lower-third" role="status" hidden><strong id="lower-title"></strong><span id="lower-detail"></span></p>
+
+    <aside class="tower" aria-label="Running order">
+      <div class="lap-box">
+        <p class="lap"><span id="lap-now">–</span><small id="lap-total"></small></p>
+        <p id="time-label" class="clock">0:00:00</p>
+      </div>
+      <p id="status-badge" class="status-badge" hidden></p>
+      <ol id="leaderboard"></ol>
+    </aside>
+
+    <section class="stage" aria-label="Track map">
+      <canvas id="track"></canvas>
+      <canvas id="scene" hidden></canvas>
+      <div class="stage-tools">
+        <div class="switch" role="group" aria-label="View">
+          <button id="view-map" type="button" aria-pressed="true">Map</button>
+          <button id="view-3d" type="button" aria-pressed="false">3D</button>
+        </div>
+        <div id="camera-switch" class="switch" role="group" aria-label="Camera" hidden>
+          <button type="button" data-camera="overview" aria-pressed="true">Overview</button>
+          <button type="button" data-camera="chase" aria-pressed="false">Chase</button>
+          <button type="button" data-camera="onboard" aria-pressed="false">Onboard</button>
+          <button type="button" data-camera="trackside" aria-pressed="false">TV</button>
+          <button type="button" data-camera="helicopter" aria-pressed="false">Helicopter</button>
+        </div>
+        <button id="story-toggle" type="button" aria-pressed="false">Race story</button>
+        <button id="sound" type="button" aria-pressed="false">Sound off</button>
+        <label id="volume-box" class="volume" hidden><span class="sr-only">Volume</span>
+          <input id="volume" type="range" min="0" max="1" step="0.05" value="0.5">
+        </label>
+      </div>
+      <p id="loading" class="loading">Loading race</p>
+      <div id="gantry" class="gantry" hidden>
+        <div class="lamps"><i></i><i></i><i></i><i></i><i></i></div>
+        <p id="gantry-note">Press space or tap when the lights go out</p>
+        <button id="skip-start" type="button">Skip the start</button>
+      </div>
+      <p id="reaction" class="reaction" role="status" hidden></p>
+      <p id="height-note" class="height-note" hidden>Real elevation, height doubled</p>
+    </section>
+
+    <section class="compare" aria-label="Driver comparison">
+      <div class="compare-head">
+        <h2 id="focus-title">Compare two drivers</h2>
+        <button id="clear-drivers" type="button">Clear</button>
+      </div>
+      <div class="cards" id="driver-cards"></div>
+      <div class="gap-chart" id="gap-wrap" hidden>
+        <p class="chart-title" id="gap-title"></p>
+        <canvas id="gap-chart"></canvas>
+        <div class="tooltip" id="gap-tooltip" hidden></div>
+      </div>
+    </section>
+
+    <aside class="story" aria-label="Race story">
+      <h2>Race story</h2>
+      <div class="filters" id="filters" role="group" aria-label="Filter moments"></div>
+      <ol id="moments"></ol>
+    </aside>
+
+    <section class="transport" aria-label="Playback">
+      <div class="timeline" id="timeline" role="slider" tabindex="0" aria-label="Race timeline"
+           aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="timeline-ticks" id="ticks"></div>
+        <div class="kerb">
+          <div class="kerb-fill" id="fill"></div>
+          <div class="timeline-bands" id="bands"></div>
+        </div>
+        <div class="timeline-head" id="head"></div>
+      </div>
+      <div class="controls">
+        <button id="play" class="primary" type="button">Play</button>
+        <button id="back" type="button" aria-label="Back 10 seconds">Back 10s</button>
+        <button id="forward" type="button" aria-label="Forward 10 seconds">Forward 10s</button>
+        <button id="prev-moment" type="button">Previous moment</button>
+        <button id="next-moment" type="button">Next moment</button>
+        <label class="speed">Speed
+          <select id="speed">
+            <option value="1">1×</option>
+            <option value="2">2×</option>
+            <option value="4" selected>4×</option>
+            <option value="8">8×</option>
+            <option value="16">16×</option>
+            <option value="32">32×</option>
+            <option value="64">64×</option>
+          </select>
+        </label>
+        <button id="share" type="button">Copy link</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>
